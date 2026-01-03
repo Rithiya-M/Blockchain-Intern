@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DeFi Lending DApp</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+</head>
+<body>
+
+<h2>DeFi Lending & Borrowing</h2>
+
+<button onclick="connectWallet()">Connect Wallet</button>
+
+<h3>Lend ETH</h3>
+<input id="depositAmount" placeholder="Amount in ETH">
+<button onclick="deposit()">Deposit</button>
+
+<h3>Borrow ETH</h3>
+<input id="borrowAmount" placeholder="Amount in ETH">
+<button onclick="borrow()">Borrow</button>
+
+<h3>Repay Loan</h3>
+<input id="repayAmount" placeholder="Amount in ETH">
+<button onclick="repay()">Repay</button>
+
+<h3>Interest Rate</h3>
+<button onclick="getInterest()">Check Interest Rate</button>
+<p id="rate"></p>
+
+<script>
+let provider, signer, contract;
+
+const contractAddress = "YOUR_DEPLOYED_CONTRACT_ADDRESS";
+const abi = [
+    {
+      "inputs": [],
+      "name": "baseRate",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "borrow",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "borrows",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "deposit",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "deposits",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getInterestRate",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "multiplier",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "repay",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalBorrowed",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupplied",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
+
+async function connectWallet() {
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  signer = provider.getSigner();
+  contract = new ethers.Contract(contractAddress, abi, signer);
+  alert("Wallet Connected");
+}
+
+async function deposit() {
+  const amt = document.getElementById("depositAmount").value;
+  await contract.deposit({ value: ethers.utils.parseEther(amt) });
+}
+
+async function borrow() {
+  const amt = document.getElementById("borrowAmount").value;
+  await contract.borrow(ethers.utils.parseEther(amt));
+}
+
+async function repay() {
+  const amt = document.getElementById("repayAmount").value;
+  await contract.repay({ value: ethers.utils.parseEther(amt) });
+}
+
+async function getInterest() {
+  const rate = await contract.getInterestRate();
+  document.getElementById("rate").innerText = rate + "%";
+}
+</script>
+
+</body>
+</html>
